@@ -15,8 +15,8 @@ plugin_dir_exists() {
 # No errors if the plugin dir does not exist.
 silently_source_all_tmux_files() {
 	local plugin_path="$1"
+	local async="${2:-true}"
 	local plugin_tmux_files="$plugin_path*.tmux"
-	local async="$(get_tmux_option "@tpm_async" "true")"
 
 	if ! plugin_dir_exists "$plugin_path"; then
 		return
@@ -39,11 +39,20 @@ silently_source_all_tmux_files() {
 
 source_plugins() {
 	local plugin plugin_path
-	local plugins="$(tpm_plugins_list_helper)"
-	for plugin in $plugins; do
+	local async="$(get_tmux_option "@tpm_async" "true")"
+	local sync_plugins="$(tpm_sync_plugins_list_helper)"
+	local async_plugins="$(tpm_async_plugins_list_helper)"
+
+	for plugin in $sync_plugins; do
 		IFS='#' read -ra plugin <<< "$plugin"
 		plugin_path="$(plugin_path_helper "${plugin[0]}")"
-		silently_source_all_tmux_files "$plugin_path"
+		silently_source_all_tmux_files "$plugin_path" "false"
+	done
+
+	for plugin in $async_plugins; do
+		IFS='#' read -ra plugin <<< "$plugin"
+		plugin_path="$(plugin_path_helper "${plugin[0]}")"
+		silently_source_all_tmux_files "$plugin_path" "$async"
 	done
 }
 
