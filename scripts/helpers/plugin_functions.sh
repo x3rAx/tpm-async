@@ -73,16 +73,6 @@ tpm_path() {
 }
 
 tpm_plugins_list_helper() {
-	echo "$(tpm_sync_plugins_list_helper) $(tpm_async_plugins_list_helper)"
-}
-
-tpm_sync_plugins_list_helper() {
-	# read set -g @plugin_sync "tmux-plugins/tmux-example-plugin" entries
-	_tmux_conf_contents "full" |
-		awk '/^[ \t]*set(-option)? +-g +@plugin_sync/ { gsub(/'\''/,""); gsub(/'\"'/,""); print $4 }'
-}
-
-tpm_async_plugins_list_helper() {
 	# lists plugins from @tpm_plugins option
 	echo "$(tmux start-server\; show-option -gqv "$tpm_plugins_variable_name")"
 
@@ -150,6 +140,8 @@ get_plugin_spec_attr() {
 	local attr_name="$1"
 	local spec="$2"
 	local fallback="${3:-}"
+
+	# TODO: Test if attr_name is valid
 
 	# Split spec by `;`
 	IFS=';' read -ra spec <<< "$spec"

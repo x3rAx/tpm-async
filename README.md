@@ -44,8 +44,13 @@ run -b '#{d:current_file}/plugins/tpm-async/tpm'
 > [!NOTE]
 > The `run -b` in the last line loads TPM itself asynchronously. This means
 > that `tmux` will start faster but it might cause a bit of flickering until
-> themes are loaded. Remove the `-b` and add theme plugins using `@plugin_sync`
-> to work around this.
+> e.g. themes are loaded. If it bothers you, you can work around it by removing
+> the `-b` and add the `async=false` attribute on the plugins you want to be
+> loaded synchronously:
+>
+> ```tmux
+> set -g @plugin 'catppuccin/tmux;async=false'
+> ```
 
 Reload TMUX environment so TPM is sourced:
 
