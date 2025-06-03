@@ -72,6 +72,15 @@ find plugin directory there and remove it.
 `prefix` + <kbd>alt</kbd> + <kbd>u</kbd>
 - remove/uninstall plugins not on the plugin list
 
+### Disable Async Plugin Loading
+
+Should you encounter problems with async plugin loading, it can be disabled by
+setting the following option before loading TPM:
+
+```tmux
+set -g @tpm_async 'false'
+```
+
 ### Docs
 
 - [Help, tpm not working](docs/tpm_not_working.md) - problem solutions

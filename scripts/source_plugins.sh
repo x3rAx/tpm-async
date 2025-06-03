@@ -4,6 +4,7 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HELPERS_DIR="$CURRENT_DIR/helpers"
 
 source "$HELPERS_DIR/plugin_functions.sh"
+source "$HELPERS_DIR/tmux_utils.sh"
 
 plugin_dir_exists() {
 	[ -d "$1" ]
@@ -15,6 +16,7 @@ plugin_dir_exists() {
 silently_source_all_tmux_files() {
 	local plugin_path="$1"
 	local plugin_tmux_files="$plugin_path*.tmux"
+	local async="$(get_tmux_option "@tpm_async" "true")"
 
 	if ! plugin_dir_exists "$plugin_path"; then
 		return
@@ -25,8 +27,13 @@ silently_source_all_tmux_files() {
 		# unexpanded glob which obviously doesn't exist
 		[ -f "$tmux_file" ] || continue
 
-		# runs *.tmux file asynchronously as an executable
-		$tmux_file >/dev/null 2>&1 &
+		if [[ $async == 'false' ]]; then
+			# runs *.tmux file as an executable
+			$tmux_file >/dev/null 2>&1
+		else
+			# runs *.tmux file asynchronously as an executable
+			$tmux_file >/dev/null 2>&1 &
+		fi
 	done
 }
 
