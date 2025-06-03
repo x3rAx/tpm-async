@@ -14,8 +14,13 @@ Requirements: `tmux` version 1.9 (or higher), `git`, `bash`.
 
 Clone TPM:
 
+> [!NOTE]
+> If your tmux config is located in `$XDG_CONFIG_HOME/tmux/tmux.conf` (i.e.
+> `~/.config/tmux/tmux.conf`) you need to change `~/.tmux/plugins/tpm-async`
+> to `$XDG_CONFIG_HOME/tmux/tmux.conf` in the command below.
+
 ```bash
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+git clone https://github.com/x3rAx/tpm-async ~/.tmux/plugins/tpm-async
 ```
 
 Put this at the bottom of `~/.tmux.conf` (`$XDG_CONFIG_HOME/tmux/tmux.conf`
@@ -23,7 +28,7 @@ works too):
 
 ```bash
 # List of plugins
-set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'x3rAx/tpm-async'
 set -g @plugin 'tmux-plugins/tmux-sensible'
 
 # Other examples:
@@ -33,8 +38,14 @@ set -g @plugin 'tmux-plugins/tmux-sensible'
 # set -g @plugin 'git@bitbucket.com:user/plugin'
 
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
-run '~/.tmux/plugins/tpm/tpm'
+run -b '#{d:current_file}/plugins/tpm-async/tpm'
 ```
+
+> [!NOTE]
+> The `run -b` in the last line loads TPM itself asynchronously. This means
+> that `tmux` will start faster but it might cause a bit of flickering until
+> themes are loaded. Remove the `-b` and add theme plugins using `@plugin_sync`
+> to work around this.
 
 Reload TMUX environment so TPM is sourced:
 
