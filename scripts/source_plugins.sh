@@ -15,15 +15,19 @@ plugin_dir_exists() {
 silently_source_all_tmux_files() {
 	local plugin_path="$1"
 	local plugin_tmux_files="$plugin_path*.tmux"
-	if plugin_dir_exists "$plugin_path"; then
-		for tmux_file in $plugin_tmux_files; do
-			# if the glob didn't find any files this will be the
-			# unexpanded glob which obviously doesn't exist
-			[ -f "$tmux_file" ] || continue
-			# runs *.tmux file asynchronously as an executable
-			$tmux_file >/dev/null 2>&1 &
-		done
+
+	if ! plugin_dir_exists "$plugin_path"; then
+		return
 	fi
+
+	for tmux_file in $plugin_tmux_files; do
+		# if the glob didn't find any files this will be the
+		# unexpanded glob which obviously doesn't exist
+		[ -f "$tmux_file" ] || continue
+
+		# runs *.tmux file asynchronously as an executable
+		$tmux_file >/dev/null 2>&1 &
+	done
 }
 
 source_plugins() {
