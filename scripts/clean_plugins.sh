@@ -22,7 +22,7 @@ clean_plugins() {
 		case "${plugins}" in
 			*"${plugin}"*) : ;;
 			*)
-			[ "${plugin}" = "tpm" ] && continue
+			[ "${plugin}" = "tpm-async" ] && continue
 			echo_ok "Removing \"$plugin\""
 			rm -rf "${plugin_directory}" >/dev/null 2>&1
 			[ -d "${plugin_directory}" ] &&
