@@ -20,8 +20,8 @@ silently_source_all_tmux_files() {
 			# if the glob didn't find any files this will be the
 			# unexpanded glob which obviously doesn't exist
 			[ -f "$tmux_file" ] || continue
-			# runs *.tmux file as an executable
-			$tmux_file >/dev/null 2>&1
+			# runs *.tmux file asynchronously as an executable
+			$tmux_file >/dev/null 2>&1 &
 		done
 	fi
 }
