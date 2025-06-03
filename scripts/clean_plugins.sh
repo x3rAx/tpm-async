@@ -30,23 +30,34 @@ _get_installed_plugin_names() {
 }
 
 clean_plugins() {
-	local plugins plugin plugin_directory
-	plugins="$(_get_installed_plugin_names)"
+	local plugin plugin_directory
+	local specs="$(_get_installed_plugin_names)"
+	local names=()
+
+	# Convert plugin specs to plugin names
+	local spec
+	for spec in $specs; do
+		names+=( "$(plugin_name_helper "$spec")" )
+	done
+	names="${names[*]}"
 
 	for plugin_directory in "$(tpm_path)"/*; do
 		[ -d "${plugin_directory}" ] || continue
-		plugin="$(plugin_name_helper "${plugin_directory}")"
+		name="$(basename "${plugin_directory}")"
+
 		# Add spaces around plugin list to allow matching the full name
-		case " ${plugins} " in
-			*" ${plugin} "*) : ;;
+		case " ${names} " in
+			*" ${name} "*) : ;;
 			*)
-			[ "${plugin}" = "tpm-async" ] && continue
-			echo_ok "Removing \"$plugin\""
-			rm -rf "${plugin_directory}" >/dev/null 2>&1
-			[ -d "${plugin_directory}" ] &&
-			echo_err "  \"$plugin\" clean fail" ||
-			echo_ok "  \"$plugin\" clean success"
-			;;
+				[[ "${name}" == "tpm-async" ]] && continue
+
+				echo_ok "Removing \"$name\""
+				rm -rf "${plugin_directory}" >/dev/null 2>&1
+
+				[ -d "${plugin_directory}" ] &&
+					echo_err "  \"$name\" clean fail" ||
+					echo_ok "  \"$name\" clean success"
+				;;
 		esac
 	done
 }
