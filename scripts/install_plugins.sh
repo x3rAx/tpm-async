@@ -28,11 +28,12 @@ clone() {
 # 1. plugin name directly - works if it's a valid git url
 # 2. expands the plugin name to point to a GitHub repo and tries cloning again
 clone_plugin() {
-	local plugin="$1"
+	local repo_url="$1"
 	local branch="$2"
 	local name="$3"
-	clone "$plugin" "$branch" "$name" ||
-		clone "https://git::@github.com/$plugin" "$branch" "$name"
+
+	clone "$repo_url" "$branch" "$name" ||
+		clone "https://git::@github.com/$repo_url" "$branch" "$name"
 }
 
 # clone plugin and produce output
