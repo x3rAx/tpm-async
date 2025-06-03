@@ -13,15 +13,15 @@ else # shell output functions
 fi
 
 clone() {
-	local plugin="$1"
+	local repo_url="$1"
 	local branch="$2"
-	if [ -n "$branch" ]; then
-		cd "$(tpm_path)" &&
-			GIT_TERMINAL_PROMPT=0 git clone -b "$branch" --single-branch --recursive "$plugin" >/dev/null 2>&1
-	else
-		cd "$(tpm_path)" &&
-			GIT_TERMINAL_PROMPT=0 git clone --single-branch --recursive "$plugin" >/dev/null 2>&1
-	fi
+	local name="$3"
+
+	local git_cmd=(git clone --single-branch --recursive)
+	[[ -n "$branch" ]] && git_cmd+=(-b "$branch")
+	git_cmd+=("$repo_url" "$(tpm_path)/${name}")
+
+	GIT_TERMINAL_PROMPT=0 "${git_cmd[@]}"  >/dev/null 2>&1
 }
 
 # tries cloning:
@@ -30,23 +30,24 @@ clone() {
 clone_plugin() {
 	local plugin="$1"
 	local branch="$2"
-	clone "$plugin" "$branch" ||
-		clone "https://git::@github.com/$plugin" "$branch"
+	local name="$3"
+	clone "$plugin" "$branch" "$name" ||
+		clone "https://git::@github.com/$plugin" "$branch" "$name"
 }
 
 # clone plugin and produce output
 install_plugin() {
 	local plugin="$1"
 	local branch="$2"
-	local plugin_name="$(plugin_name_helper "$plugin")"
+	local name="$(plugin_name_helper "$plugin")"
 
 	if plugin_already_installed "$plugin"; then
-		echo_ok "Already installed \"$plugin_name\""
+		echo_ok "Already installed \"$name\""
 	else
-		echo_ok "Installing \"$plugin_name\""
-		clone_plugin "$plugin" "$branch" &&
-			echo_ok "  \"$plugin_name\" download success" ||
-			echo_err "  \"$plugin_name\" download fail"
+		echo_ok "Installing \"$name\""
+		clone_plugin "$plugin" "$branch" "$name" &&
+			echo_ok "  \"$name\" download success" ||
+			echo_err "  \"$name\" download fail"
 	fi
 }
 
