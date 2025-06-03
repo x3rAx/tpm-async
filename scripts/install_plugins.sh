@@ -38,25 +38,27 @@ clone_plugin() {
 
 # clone plugin and produce output
 install_plugin() {
-	local plugin="$1"
-	local branch="$2"
-	local name="$(plugin_name_helper "$plugin")"
+	local spec="$1"
 
-	if plugin_already_installed "$plugin"; then
-		echo_ok "Already installed \"$name\""
+	local repo="$(get_plugin_spec_attr repo "$spec")"
+	local repo_url="$(get_plugin_spec_attr repo_url "$spec")"
+	local branch="$(get_plugin_spec_attr repo_branch "$spec")"
+	local name="$(plugin_name_helper "$spec")"
+
+	if plugin_already_installed "$name"; then
+		echo_ok "Already installed \"$name\" ($repo)"
 	else
-		echo_ok "Installing \"$name\""
-		clone_plugin "$plugin" "$branch" "$name" &&
+		echo_ok "Installing \"$name\" ($repo)"
+		clone_plugin "$repo_url" "$branch" "$name" &&
 			echo_ok "  \"$name\" download success" ||
 			echo_err "  \"$name\" download fail"
 	fi
 }
 
 install_plugins() {
-	local plugins="$(tpm_plugins_list_helper)"
-	for plugin in $plugins; do
-		IFS='#' read -ra plugin <<< "$plugin"
-		install_plugin "${plugin[0]}" "${plugin[1]}"
+	local specs="$(tpm_plugins_list_helper)"
+	for spec in $specs; do
+		install_plugin "$spec"
 	done
 }
 

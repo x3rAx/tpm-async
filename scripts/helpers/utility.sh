@@ -15,3 +15,15 @@ exit_value_helper() {
 		exit 0
 	fi
 }
+
+trim_whitespace() {
+	local var="$1"
+
+	# Remove leading whitespace characters
+	var="${var#"${var%%[![:space:]]*}"}"
+
+	# Remove trailing whitespace characters
+	var="${var%"${var##*[![:space:]]}"}"
+
+	echo "$var"
+}
