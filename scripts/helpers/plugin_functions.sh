@@ -1,5 +1,6 @@
 HELPERS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source "$HELPERS_DIR/tmux_echo_functions.sh"
 source "$HELPERS_DIR/utility.sh"
 
 # using @tpm_plugins is now deprecated in favor of using @plugin syntax
@@ -81,6 +82,8 @@ tpm_plugins_list_helper() {
 		awk '/^[ \t]*set(-option)? +-g +@plugin/ { gsub(/'\''/,""); gsub(/'\"'/,""); print $4 }'
 }
 
+# @DEPRECATED: Use `plugin_parse_spec`
+#
 # $attr_name can be one of
 # - repo:        The full repo description
 # - repo_url:    The repo url without the branch spec
@@ -122,6 +125,8 @@ _get_plugin_spec_repo_attr() {
 	esac
 }
 
+# @DEPRECATED: Use `plugin_parse_spec`
+#
 # Get an attribute value from the plugin spec. The plugin spec has the
 # following format:
 #
@@ -165,6 +170,68 @@ get_plugin_spec_attr() {
 	echo "$(trim_whitespace "$fallback")"
 }
 
+plugin_parse_spec() {
+	local -n _spec="$1"
+	local spec_str="$2"
+
+	# Split spec_str by `;`
+	IFS=';' read -ra spec_arr <<< "$spec_str"
+
+	local plugin="$(trim_whitespace "${spec_arr[0]}")"
+
+	# Split plugin by branch specifier `#`
+	IFS='#' read -ra plugin_arr <<< "$plugin"
+
+	_spec['plugin']="$plugin"
+	_spec['url']="${plugin_arr[0]}"
+	_spec['branch']="${plugin_arr[1]}"
+
+	# Remove repo from spec_arr, everything else is `key=value`
+	spec_arr=("${spec_arr[@]:1}")
+
+	# Set default values
+	_spec['alias']=''
+	_spec['async']=''
+
+	for elem in "${spec_arr}"; do
+		case "$elem" in
+			'') ;;
+
+			'alias='*)
+				_spec['alias']="${elem#*=}"
+				;;
+
+			'async='*)
+				_spec['async']="${elem#*=}"
+				;;
+
+			*)
+				attr_name="${elem%%=*}"
+				echo_err "Ignoring invalid spec attribute: ${attr_name}"
+				;;
+		esac
+	done
+}
+
+plugin_get_name() {
+	local -n spec__MCJFEI="$1"
+
+	if [[ -n ${spec__MCJFEI[alias]} ]]; then
+		echo "${spec__MCJFEI[alias]}"
+		return
+	fi
+
+	local url="${spec__MCJFEI[url]}"
+	# Get only the part after the last slash, e.g. "plugin_name.git"
+	local base_name="$(basename "$url")"
+	# Remove ".git" extension (if it exists) to get only the name
+	local name="${base_name%.git}"
+
+	echo "$name"
+}
+
+# @DEPRECATED: Use `plugin_get_name`
+#
 # Allowed plugin name formats:
 # 1. "git://github.com/user/plugin_name.git"
 # 2. "user/plugin_name"
@@ -189,6 +256,13 @@ plugin_name_helper() {
 	echo "$plugin_name"
 }
 
+plugin_get_dir() {
+	local -n spec__VX6GRY="$1"
+	local name="$(plugin_get_name spec__VX6GRY)"
+	echo "$(tpm_path)/${name}"
+}
+
+# @DEPRECATED: Use `get_plugin_dir`
 plugin_path_helper() {
 	local plugin="$1"
 	local plugin_name="$(plugin_name_helper "$plugin")"
