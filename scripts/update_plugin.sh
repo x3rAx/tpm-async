@@ -10,12 +10,13 @@ source "$HELPERS_DIR/utility.sh"
 
 if [ "$1" == "--tmux-echo" ]; then # tmux-specific echo functions
 	source "$HELPERS_DIR/tmux_echo_functions.sh"
+
+	# from now on ignore first script argument
+	shift
 else # shell output functions
 	source "$HELPERS_DIR/shell_echo_functions.sh"
 fi
 
-# from now on ignore first script argument
-shift
 
 pull_changes() {
 	local plugin="$1"
