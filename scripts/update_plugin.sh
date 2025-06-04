@@ -54,8 +54,8 @@ update_all() {
 }
 
 update_plugins() {
-	local plugins="$*"
-	for plugin in $plugins; do
+	local plugins="$@"
+	for plugin in "${plugins[@]}"; do
 		IFS='#' read -ra plugin <<< "$plugin"
 		local plugin_name="$(plugin_name_helper "${plugin[0]}")"
 		if plugin_already_installed "$plugin_name"; then
@@ -72,8 +72,8 @@ main() {
 	if [ "$1" == "all" ]; then
 		update_all
 	else
-		update_plugins "$*"
+		update_plugins "$@"
 	fi
 	exit_value_helper
 }
-main "$*"
+main "$@"
