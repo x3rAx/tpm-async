@@ -41,22 +41,30 @@ update() {
 update_all() {
 	echo_ok "Updating all plugins!"
 	echo_ok ""
-	local plugins="$(tpm_plugins_list_helper)"
-	for plugin in $plugins; do
-		IFS='#' read -ra plugin <<< "$plugin"
-		local plugin_name="$(plugin_name_helper "${plugin[0]}")"
+
+	local specs="$(tpm_plugins_list_helper)"
+
+	for spec_str in $specs; do
+		local -A spec
+		plugin_parse_spec spec "$spec_str"
+
+		local name="$(plugin_get_name spec)"
+
 		# updating only installed plugins
-		if plugin_already_installed "$plugin_name"; then
-			update "$plugin_name" &
+		if plugin_already_installed "$name"; then
+			update "$name" &
 		fi
 	done
+
 	wait
 }
 
 update_plugins() {
 	local plugins="$@"
+
 	for plugin in "${plugins[@]}"; do
-		IFS='#' read -ra plugin <<< "$plugin"
+		IFS=';' read -ra plugin <<< "$plugin"
+		IFS='#' read -ra plugin <<< "${plugin[0]}"
 		local plugin_name="$(plugin_name_helper "${plugin[0]}")"
 		if plugin_already_installed "$plugin_name"; then
 			update "$plugin_name" &
@@ -64,6 +72,7 @@ update_plugins() {
 			echo_err "$plugin_name not installed!" &
 		fi
 	done
+
 	wait
 }
 
